@@ -46,7 +46,8 @@ if (chartContainer) {
 
     Pusher.logToConsole = true;
 
-    var pusher = new Pusher('4e5c9b8f211ca6c1af8d', {
+    var pusher = new Pusher ('4e5c9b8f211ca6c1af8d'
+        , {
         cluster: 'ap2'
     });
 
