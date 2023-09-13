@@ -45,7 +45,7 @@ fetch('http://localhost:4141/poll')
                 animationEnabled: true,
                 theme: 'theme1',
                 title: {
-                    text: 'OS Results'
+                    text: `Total Votes ${totalVotes}`
                 },
                 data: [
                     {
