@@ -19,48 +19,62 @@ form.addEventListener('submit', (e) => {
     e.preventDefault();
 });
 
-let dataPoints = [
-    { label: "Windows", y: 0 },
-    { label: "MacOS", y: 0 },
-    { label: "Linux", y: 0 },
-    { label: "Other", y: 0 },
-];
+fetch('http://localhost:4141/poll')
+    .then(res => res.json())
+    .then(data => {
+        const votes = data.votes;
+        const totalVotes = votes.length;
 
-const chartContainer = document.querySelector('#chartContainer');
+        const voteCounts = votes.reduce((acc, vote) => (
+            (acc[vote.os] = (acc[vote.os] || 0) + parseInt(vote.points)), acc),
+            {}
+        );
 
-if (chartContainer) {
-    const chart = new CanvasJS.Chart('chartContainer', {
-        animationEnabled: true,
-        theme: 'theme1',
-        title: {
-            text: 'OS Results'
-        },
-        data: [
-            {
-                type: 'column',
-                dataPoints: dataPoints
-            }
-        ]
-    });
-    chart.render();
 
-    Pusher.logToConsole = true;
+        let dataPoints = [
+            { label: "Windows", y: voteCounts.Windows },
+            { label: "MacOS", y: voteCounts.MacOS },
+            { label: "Linux", y: voteCounts.Linux },
+            { label: "Other", y: voteCounts.Other },
+        ];
 
-    var pusher = new Pusher ('4e5c9b8f211ca6c1af8d'
-        , {
-        cluster: 'ap2'
-    });
+        const chartContainer = document.querySelector('#chartContainer');
 
-    var channel = pusher.subscribe('os-poll');
-    channel.bind('os-vote', function (data) {
-        dataPoints = dataPoints.map(x => {
-            if(x.label == data.os){
-                x.y += data.points;
-                return x;
-            }else{
-                return x;
-            }
-        });
-        chart.render();
-    });
-}
+        if (chartContainer) {
+            const chart = new CanvasJS.Chart('chartContainer', {
+                animationEnabled: true,
+                theme: 'theme1',
+                title: {
+                    text: 'OS Results'
+                },
+                data: [
+                    {
+                        type: 'column',
+                        dataPoints: dataPoints
+                    }
+                ]
+            });
+            chart.render();
+
+            Pusher.logToConsole = true;
+
+            var pusher = new Pusher('4e5c9b8f211ca6c1af8d'
+                , {
+                    cluster: 'ap2'
+                });
+
+            var channel = pusher.subscribe('os-poll');
+            channel.bind('os-vote', function (data) {
+                dataPoints = dataPoints.map(x => {
+                    if (x.label == data.os) {
+                        x.y += data.points;
+                        return x;
+                    } else {
+                        return x;
+                    }
+                });
+                chart.render();
+            });
+        }
+    })
+

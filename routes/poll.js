@@ -14,7 +14,7 @@ const pusher = new Pusher({
 });
 
 router.get('/', (req, res) => {
-    Vote.find().then(votes=> res.join({success:true, votes:votes}));
+    Vote.find().then(votes=> res.json({success:true, votes:votes}));
 });
 
 
